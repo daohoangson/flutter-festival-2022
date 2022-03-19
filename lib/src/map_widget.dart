@@ -1,5 +1,6 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
 
 final _latLngBenThanh = LatLng(10.7721148, 106.6960897);
@@ -46,21 +47,30 @@ class _MapWidgetState extends State<MapWidget> {
             return const Text('© OpenStreetMap contributors');
           },
         ),
+        if (markerPoints != null)
+          MarkerClusterLayerOptions(
+            builder: (context, markers) {
+              return FloatingActionButton(
+                child: Text(markers.length.toString()),
+                onPressed: null,
+              );
+            },
+            markers: markerPoints
+                .where(
+                  (point) => point != center,
+                )
+                .map(
+                  (point) => Marker(
+                    width: _MarkerOther.size,
+                    height: _MarkerOther.size,
+                    point: point,
+                    builder: (_) => const _MarkerOther(),
+                  ),
+                )
+                .toList(growable: false),
+          ),
         MarkerLayerOptions(
           markers: [
-            if (markerPoints != null)
-              ...markerPoints
-                  .where(
-                    (point) => point != center,
-                  )
-                  .map(
-                    (point) => Marker(
-                      width: _MarkerOther.size,
-                      height: _MarkerOther.size,
-                      point: point,
-                      builder: (_) => const _MarkerOther(),
-                    ),
-                  ),
             if (center != null)
               Marker(
                 width: _MarkerCenter.radius,
@@ -74,6 +84,9 @@ class _MapWidgetState extends State<MapWidget> {
       options: MapOptions(
         center: widget.center ?? _latLngBenThanh,
         onMapCreated: _onMapCreated,
+        plugins: [
+          MarkerClusterPlugin(),
+        ],
         zoom: 15.0,
       ),
     );
