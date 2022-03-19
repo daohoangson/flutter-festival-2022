@@ -11,7 +11,10 @@ class TotalMarkerWidget extends StatelessWidget {
       animation: notifier,
       builder: (_, __) {
         final positions = notifier.value;
-        return Text('Total markers: ${positions.length}');
+        return Text(
+          '${positions.isNotEmpty ? '👍' : '🤔'} '
+          'Total markers: ${positions.length}',
+        );
       },
     );
   }
