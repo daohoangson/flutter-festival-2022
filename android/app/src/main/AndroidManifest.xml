@@ -7,6 +7,10 @@
         android:label="ff220320"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+        <!-- This key has been restricted by package name & keystore -->
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyAdUfcxKLAZN6jwwp_ruzscxsXiaL8Ih0o"/>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
