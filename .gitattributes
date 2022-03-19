@@ -1,2 +1,3 @@
 firebase_options.dart filter=git-crypt diff=git-crypt
+goong_dot_io.dart filter=git-crypt diff=git-crypt
 keystore filter=git-crypt diff=git-crypt

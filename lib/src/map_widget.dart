@@ -1,7 +1,10 @@
-import 'package:flutter/material.dart';
+import 'package:ff220320/src/goong_dot_io.dart';
+import 'package:flutter/material.dart' hide Theme;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:vector_map_tiles/vector_map_tiles.dart';
+import 'package:vector_tile_renderer/vector_tile_renderer.dart';
 
 final _latLngBenThanh = LatLng(10.7721148, 106.6960897);
 
@@ -40,12 +43,13 @@ class _MapWidgetState extends State<MapWidget> {
 
     return FlutterMap(
       layers: [
-        TileLayerOptions(
-          urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-          subdomains: ['a', 'b', 'c'],
-          attributionBuilder: (_) {
-            return const Text('© OpenStreetMap contributors');
-          },
+        VectorTileLayerOptions(
+          theme: _mapTheme(context),
+          tileProviders: TileProviders(
+            {
+              'composite': _cachingTileProvider(_urlTemplate()),
+            },
+          ),
         ),
         if (markerPoints != null)
           MarkerClusterLayerOptions(
@@ -86,6 +90,7 @@ class _MapWidgetState extends State<MapWidget> {
         onMapCreated: _onMapCreated,
         plugins: [
           MarkerClusterPlugin(),
+          VectorMapTilesPlugin(),
         ],
         zoom: 15.0,
       ),
@@ -94,6 +99,25 @@ class _MapWidgetState extends State<MapWidget> {
 
   void _onMapCreated(MapController controller) {
     _controller = controller;
+  }
+
+  VectorTileProvider _cachingTileProvider(String urlTemplate) {
+    return MemoryCacheVectorTileProvider(
+      delegate: NetworkVectorTileProvider(
+        urlTemplate: urlTemplate,
+        maximumZoom: 16,
+      ),
+      maxSizeBytes: 1024 * 1024 * 2,
+    );
+  }
+
+  Theme _mapTheme(BuildContext context) {
+    // https://tiles.goong.io/assets/goong_map_web.json?api_key=xxx
+    return ThemeReader().read(goongMapWebJson);
+  }
+
+  String _urlTemplate() {
+    return 'https://tiles.goong.io/tiles/composite/{z}/{x}/{y}.pbf?api_key=$apiKey';
   }
 }
 
