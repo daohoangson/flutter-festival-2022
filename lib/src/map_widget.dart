@@ -34,11 +34,20 @@ class _MapWidgetState extends State<MapWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final center = widget.center;
+
     return GoogleMap(
       initialCameraPosition: CameraPosition(
         target: (widget.center ?? _latLngBenThanh).toGoogle,
         zoom: 15.0,
       ),
+      markers: {
+        if (center != null)
+          Marker(
+            markerId: const MarkerId('widget.center'),
+            position: center.toGoogle,
+          ),
+      },
       myLocationButtonEnabled: false,
       onMapCreated: _onMapCreated,
       zoomControlsEnabled: false,
