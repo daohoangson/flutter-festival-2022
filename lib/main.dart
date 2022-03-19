@@ -56,28 +56,28 @@ class _MyAppState extends State<MyApp> {
       child: body,
     );
 
-    body = Stack(
-      children: [
-        body,
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              WelcomeWidget(notifier: _user),
-              GpsStatusWidget(notifier: _userPosition),
-              TotalMarkerWidget(notifier: _positions),
-            ],
-          ),
-        ),
-      ],
-    );
-
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Flutter Festival 2022'),
           backgroundColor: const Color(0xFF0553B1),
+          actions: [
+            PopupMenuButton(
+              itemBuilder: (context) {
+                return [
+                  PopupMenuItem(
+                    child: WelcomeWidget(notifier: _user),
+                  ),
+                  PopupMenuItem(
+                    child: GpsStatusWidget(notifier: _userPosition),
+                  ),
+                  PopupMenuItem(
+                    child: TotalMarkerWidget(notifier: _positions),
+                  ),
+                ];
+              },
+            ),
+          ],
         ),
         body: body,
         floatingActionButton: GpsButton(
