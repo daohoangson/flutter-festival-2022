@@ -35,6 +35,7 @@ class _MapWidgetState extends State<MapWidget> {
   @override
   Widget build(BuildContext context) {
     final center = widget.center;
+    final markerPoints = widget.markerPoints;
 
     return FlutterMap(
       layers: [
@@ -47,6 +48,19 @@ class _MapWidgetState extends State<MapWidget> {
         ),
         MarkerLayerOptions(
           markers: [
+            if (markerPoints != null)
+              ...markerPoints
+                  .where(
+                    (point) => point != center,
+                  )
+                  .map(
+                    (point) => Marker(
+                      width: _MarkerOther.size,
+                      height: _MarkerOther.size,
+                      point: point,
+                      builder: (_) => const _MarkerOther(),
+                    ),
+                  ),
             if (center != null)
               Marker(
                 width: _MarkerCenter.radius,
@@ -85,6 +99,21 @@ class _MarkerCenter extends StatelessWidget {
         borderRadius: BorderRadius.circular(radius),
         color: const Color(0xFF13B9FD),
       ),
+    );
+  }
+}
+
+class _MarkerOther extends StatelessWidget {
+  static const size = 36.0;
+
+  const _MarkerOther({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      'assets/logos/flutter.png',
+      height: size,
+      width: size,
     );
   }
 }
