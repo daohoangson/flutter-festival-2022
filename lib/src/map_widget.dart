@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:google_maps_cluster_manager/google_maps_cluster_manager.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' hide LatLng;
 import 'package:google_maps_flutter/google_maps_flutter.dart' as google;
 import 'package:latlong2/latlong.dart';
@@ -20,7 +21,36 @@ class MapWidget extends StatefulWidget {
 }
 
 class _MapWidgetState extends State<MapWidget> {
+  late final ClusterManager _clusterManager;
+
+  Set<Marker> _clusteredMarkers = {};
+
   GoogleMapController? _controller;
+
+  List<_ClusterItem> get _clusterItems {
+    final points = widget.markerPoints;
+    if (points == null) {
+      return [];
+    }
+
+    return points
+        .map((point) => _ClusterItem(point.toGoogle))
+        .toList(growable: false);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _clusterManager = ClusterManager(
+      _clusterItems,
+      (markers) {
+        if (mounted) {
+          setState(() => _clusteredMarkers = markers);
+        }
+      },
+    );
+  }
 
   @override
   void didUpdateWidget(covariant MapWidget oldWidget) {
@@ -30,12 +60,16 @@ class _MapWidgetState extends State<MapWidget> {
     if (center != null && center != oldWidget.center) {
       _controller?.animateCamera(CameraUpdate.newLatLng(center.toGoogle));
     }
+
+    final markerPoints = widget.markerPoints;
+    if (markerPoints != null && markerPoints != oldWidget.markerPoints) {
+      _clusterManager.setItems(_clusterItems);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final center = widget.center;
-    final markerPoints = widget.markerPoints;
 
     return GoogleMap(
       initialCameraPosition: CameraPosition(
@@ -48,15 +82,11 @@ class _MapWidgetState extends State<MapWidget> {
             markerId: const MarkerId('widget.center'),
             position: center.toGoogle,
           ),
-        if (markerPoints != null)
-          ...markerPoints.map(
-            (point) => Marker(
-              markerId: MarkerId('$point'),
-              position: point.toGoogle,
-            ),
-          )
+        ..._clusteredMarkers,
       },
       myLocationButtonEnabled: false,
+      onCameraIdle: _clusterManager.updateMap,
+      onCameraMove: _clusterManager.onCameraMove,
       onMapCreated: _onMapCreated,
       zoomControlsEnabled: false,
     );
@@ -64,7 +94,15 @@ class _MapWidgetState extends State<MapWidget> {
 
   void _onMapCreated(GoogleMapController controller) {
     _controller = controller;
+    _clusterManager.setMapId(controller.mapId);
   }
+}
+
+class _ClusterItem with ClusterItem {
+  @override
+  final google.LatLng location;
+
+  _ClusterItem(this.location);
 }
 
 extension _LatLng on LatLng {
