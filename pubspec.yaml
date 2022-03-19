@@ -38,6 +38,7 @@ dependencies:
   english_words: ^4.0.0
   firebase_auth: ^3.3.11
   firebase_core: ^1.13.1
+  firebase_database: ^9.0.8
   latlong2: ^0.8.1
 
 dev_dependencies:

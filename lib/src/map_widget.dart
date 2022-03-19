@@ -3,8 +3,13 @@ import 'package:latlong2/latlong.dart';
 
 class MapWidget extends StatefulWidget {
   final LatLng? center;
+  final Iterable<LatLng>? markerPoints;
 
-  const MapWidget({this.center, Key? key}) : super(key: key);
+  const MapWidget({
+    this.center,
+    Key? key,
+    this.markerPoints,
+  }) : super(key: key);
 
   @override
   State<MapWidget> createState() => _MapWidgetState();
