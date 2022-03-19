@@ -35,6 +35,7 @@ class _MapWidgetState extends State<MapWidget> {
   @override
   Widget build(BuildContext context) {
     final center = widget.center;
+    final markerPoints = widget.markerPoints;
 
     return GoogleMap(
       initialCameraPosition: CameraPosition(
@@ -47,6 +48,13 @@ class _MapWidgetState extends State<MapWidget> {
             markerId: const MarkerId('widget.center'),
             position: center.toGoogle,
           ),
+        if (markerPoints != null)
+          ...markerPoints.map(
+            (point) => Marker(
+              markerId: MarkerId('$point'),
+              position: point.toGoogle,
+            ),
+          )
       },
       myLocationButtonEnabled: false,
       onMapCreated: _onMapCreated,
